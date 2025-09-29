@@ -4,6 +4,7 @@ import socket
 import struct
 import time
 
+# Не "хардкодьте" адреса
 CMD_HOST  = str(os.getenv("CMD_HOST", "127.0.0.1"))
 CMD_PORT  = int(os.getenv("CMD_PORT", "5555"))
 TEL_HOST  = str(os.getenv("TEL_HOST", "0.0.0.0"))
@@ -85,9 +86,9 @@ try:
         tel = recv_tel()
         if not tel:
             continue
-        x, y, th, vel, gyro, ranges = tel
-        vx, vy, vth = vel
-        wx, wy, wz = gyro
+        x, y, th, vel, gyro, ranges = tel # одометрия
+        vx, vy, vth = vel # скорости
+        wx, wy, wz = gyro # гироскоп
         if not ranges:
             continue
 

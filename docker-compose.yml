@@ -23,3 +23,5 @@ services:
       - .:/app
     working_dir: /app
     command: python demo.py
+    # extra_hosts: # 👈 важно для Linux
+    #  - "host.docker.internal:host-gateway"
