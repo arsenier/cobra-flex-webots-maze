@@ -199,14 +199,15 @@ class UdpDiffController:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             print(f"[udp_diff] listen cmd on 0.0.0.0:{CMD_LISTEN_PORT} ; TX UDP → {TELEMETRY_HOST}:{TELEMETRY_PORT}")
             return sock
-        else:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2.0)
+        else:            
             while True:
                 try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(2.0)
                     sock.connect((TELEMETRY_HOST, TELEMETRY_PORT))
                     break
                 except Exception as e:
+                    sock.close()
                     print(f"[udp_diff] TCP connect retry to {TELEMETRY_HOST}:{TELEMETRY_PORT} ({e})")
                     time.sleep(0.5)
             sock.settimeout(None)
