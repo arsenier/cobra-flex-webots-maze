@@ -186,10 +186,10 @@ PROTO CobraFlex [
               Lidar {
                 name "lidar"
                 horizontalResolution 360
-                fieldOfView 1.5708
+                fieldOfView 6.283 // 1.5708
                 numberOfLayers 1
                 minRange 0.02
-                maxRange 8
+                maxRange 20
                 defaultFrequency 15
                 noise 0.002
               }

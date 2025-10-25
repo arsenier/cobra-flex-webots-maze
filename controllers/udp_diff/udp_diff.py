@@ -25,8 +25,8 @@ from controller import Supervisor
 
 # === Константы и переменные окружения ===
 CMD_LISTEN_PORT = int(os.getenv("CMD_LISTEN_PORT", "5555"))
-TELEMETRY_HOST  = os.getenv("TELEMETRY_HOST", "127.0.0.1")
-TELEMETRY_PORT  = int(os.getenv("TELEMETRY_PORT", "5600"))
+TELEMETRY_HOST = os.getenv("TELEMETRY_HOST", "127.0.0.1")
+TELEMETRY_PORT = int(os.getenv("TELEMETRY_PORT", "5600"))
 TELEMETRY_PROTO = os.getenv("TELEMETRY_PROTO", "tcp").lower()
 
 TIME_STEP_MS = 32
@@ -40,8 +40,8 @@ SPEEDUP = int(os.getenv("SPEEDUP", "2"))
 # Реалистичные ограничения движения:
 BASE_MAX_LINEAR = 0.5  # м/с
 BASE_MAX_ANGULAR = 1.0  # рад/с
-BASE_MAX_LINEAR_ACC = 0.05  # м/с²
-BASE_MAX_ANGULAR_ACC = 0.2  # рад/с²
+BASE_MAX_LINEAR_ACC = 0.5  # м/с²
+BASE_MAX_ANGULAR_ACC = 2.0  # рад/с²
 
 # Ускоренные ограничения движения:
 MAX_LINEAR = BASE_MAX_LINEAR * SPEEDUP
@@ -135,7 +135,9 @@ class UdpDiffController:
                 lidar.enablePointCloud(True)
             except Exception:
                 pass
-            print(f"[udp_diff] lidar enabled: {lidar.getHorizontalResolution()} beams, fov={lidar.getFov():.3f}")
+            print(
+                f"[udp_diff] lidar enabled: {lidar.getHorizontalResolution()} beams, fov={lidar.getFov():.3f}"
+            )
             return lidar
         except Exception:
             return None
@@ -166,7 +168,9 @@ class UdpDiffController:
         except Exception:
             return 1
 
-    def _write_result_csv(self, elapsed, start_t, finish_t, sx, sy, fx, fy, status: str = None):
+    def _write_result_csv(
+        self, elapsed, start_t, finish_t, sx, sy, fx, fy, status: str = None
+    ):
         path = RESULTS_FILE
         header = "timestamp_iso,attempt,elapsed_s,start_x,start_y,finish_x,finish_y,start_t,finish_t,status\n"
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
@@ -177,8 +181,11 @@ class UdpDiffController:
         ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(finish_t))
         with open(path, "a", encoding="utf-8", newline="") as f:
             f.write(
-                f"{ts},{attempt},{elapsed:.3f},{sx:.3f},{sy:.3f},{fx:.3f},{fy:.3f},{start_t:.3f},{finish_t:.3f},{status}\n")
-        print(f"[udp_diff] saved result attempt={attempt} elapsed={elapsed:.3f}s status={status} → {path}")
+                f"{ts},{attempt},{elapsed:.3f},{sx:.3f},{sy:.3f},{fx:.3f},{fy:.3f},{start_t:.3f},{finish_t:.3f},{status}\n"
+            )
+        print(
+            f"[udp_diff] saved result attempt={attempt} elapsed={elapsed:.3f}s status={status} → {path}"
+        )
 
     # ================================================================
     # Сеть
@@ -197,9 +204,11 @@ class UdpDiffController:
     def _setup_telemetry_socket(self):
         if TELEMETRY_PROTO == "udp":
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            print(f"[udp_diff] listen cmd on 0.0.0.0:{CMD_LISTEN_PORT} ; TX UDP → {TELEMETRY_HOST}:{TELEMETRY_PORT}")
+            print(
+                f"[udp_diff] listen cmd on 0.0.0.0:{CMD_LISTEN_PORT} ; TX UDP → {TELEMETRY_HOST}:{TELEMETRY_PORT}"
+            )
             return sock
-        else:            
+        else:
             while True:
                 try:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -208,10 +217,14 @@ class UdpDiffController:
                     break
                 except Exception as e:
                     sock.close()
-                    print(f"[udp_diff] TCP connect retry to {TELEMETRY_HOST}:{TELEMETRY_PORT} ({e})")
+                    print(
+                        f"[udp_diff] TCP connect retry to {TELEMETRY_HOST}:{TELEMETRY_PORT} ({e})"
+                    )
                     time.sleep(0.5)
             sock.settimeout(None)
-            print(f"[udp_diff] listen cmd on 0.0.0.0:{CMD_LISTEN_PORT} ; TX TCP → {TELEMETRY_HOST}:{TELEMETRY_PORT}")
+            print(
+                f"[udp_diff] listen cmd on 0.0.0.0:{CMD_LISTEN_PORT} ; TX TCP → {TELEMETRY_HOST}:{TELEMETRY_PORT}"
+            )
             return sock
 
     # ================================================================
@@ -225,7 +238,12 @@ class UdpDiffController:
         if None in (a_lf, a_lr, a_rf, a_rr):
             return
         if self.last_lf is None:
-            self.last_lf, self.last_lr, self.last_rf, self.last_rr = a_lf, a_lr, a_rf, a_rr
+            self.last_lf, self.last_lr, self.last_rf, self.last_rr = (
+                a_lf,
+                a_lr,
+                a_rf,
+                a_rr,
+            )
             return
 
         d_lf = (a_lf - self.last_lf) * WHEEL_RADIUS
@@ -270,9 +288,11 @@ class UdpDiffController:
         k = MAX_VEL / max(1.0, abs(v_l), abs(v_r))
         vl, vr = v_l * k, v_r * k
         for m in [self.LF, self.LR]:
-            if m: m.setVelocity(vl)
+            if m:
+                m.setVelocity(vl)
         for m in [self.RF, self.RR]:
-            if m: m.setVelocity(vr)
+            if m:
+                m.setVelocity(vr)
 
     # ================================================================
     # Основной цикл
@@ -317,43 +337,73 @@ class UdpDiffController:
                         pass
 
                 if not self.started:
-                    moved_cmd = (abs(linear_x) > START_CMD_V_THRESH) or (abs(angular_z) > START_CMD_W_THRESH)
+                    moved_cmd = (abs(linear_x) > START_CMD_V_THRESH) or (
+                        abs(angular_z) > START_CMD_W_THRESH
+                    )
                     moved_gps = False
                     if gx is not None and self.init_gps is not None:
-                        moved_gps = math.hypot(gx - self.init_gps[0], gy - self.init_gps[1]) >= START_MOVE_DIST
+                        moved_gps = (
+                            math.hypot(gx - self.init_gps[0], gy - self.init_gps[1])
+                            >= START_MOVE_DIST
+                        )
                     if moved_cmd or moved_gps:
                         self.started = True
                         self.start_time = now
                         if gx is not None:
                             self.start_pos = (gx, gy)
-                            print(f"[udp_diff] timing START at t={self.start_time:.3f}s ; pos x={gx:.3f} y={gy:.3f}")
+                            print(
+                                f"[udp_diff] timing START at t={self.start_time:.3f}s ; pos x={gx:.3f} y={gy:.3f}"
+                            )
                         else:
-                            print(f"[udp_diff] timing START at t={self.start_time:.3f}s")
+                            print(
+                                f"[udp_diff] timing START at t={self.start_time:.3f}s"
+                            )
 
                 # --- финиш: вход в центральный квадрат 2×2 клеток по X–Y ---
                 if self.started and not self.finished and gx is not None:
-                    if abs(gx - FINISH_CX) <= FINISH_HALF_SIZE and abs(gy - FINISH_CY) <= FINISH_HALF_SIZE:
+                    if (
+                        abs(gx - FINISH_CX) <= FINISH_HALF_SIZE
+                        and abs(gy - FINISH_CY) <= FINISH_HALF_SIZE
+                    ):
                         self.finished = True
                         self.finish_time = now
                         self.finish_pos = (gx, gy)
                         elapsed = self.finish_time - self.start_time
-                        sx, sy = self.start_pos if self.start_pos is not None else (gx, gy)
-                        self._write_result_csv(elapsed, self.start_time, self.finish_time, sx, sy, gx, gy,status="finish")
+                        sx, sy = (
+                            self.start_pos if self.start_pos is not None else (gx, gy)
+                        )
+                        self._write_result_csv(
+                            elapsed,
+                            self.start_time,
+                            self.finish_time,
+                            sx,
+                            sy,
+                            gx,
+                            gy,
+                            status="finish",
+                        )
                         print(
-                            f"[udp_diff] timing FINISH at t={self.finish_time:.3f}s ; elapsed={elapsed:.3f}s ; pos x={gx:.3f} y={gy:.3f}")
+                            f"[udp_diff] timing FINISH at t={self.finish_time:.3f}s ; elapsed={elapsed:.3f}s ; pos x={gx:.3f} y={gy:.3f}"
+                        )
 
                         # остановить моторы
-                        if self.LF: self.LF.setVelocity(0.0)
-                        if self.RF: self.RF.setVelocity(0.0)
-                        if self.LR: self.LR.setVelocity(0.0)
-                        if self.RR: self.RR.setVelocity(0.0)
+                        if self.LF:
+                            self.LF.setVelocity(0.0)
+                        if self.RF:
+                            self.RF.setVelocity(0.0)
+                        if self.LR:
+                            self.LR.setVelocity(0.0)
+                        if self.RR:
+                            self.RR.setVelocity(0.0)
 
                         # остановить симуляцию
                         try:
                             if STOP_ON_FINISH == "quit":
                                 self.robot.simulationQuit(0)
                             elif STOP_ON_FINISH == "pause":
-                                self.robot.simulationSetMode(Supervisor.SIMULATION_MODE_PAUSE)
+                                self.robot.simulationSetMode(
+                                    Supervisor.SIMULATION_MODE_PAUSE
+                                )
                         except Exception:
                             pass
                         break
@@ -375,9 +425,15 @@ class UdpDiffController:
                 n = len(ranges)
                 payload = b"WBTG" + struct.pack(  # b"WBT2" + struct.pack(
                     "<9f",  # "<6f",
-                    self.odom_x, self.odom_y, self.odom_th,  # одометрия
-                    self.current_v, 0.0, self.current_w,  # скорости
-                    wx, wy, wz  # гироскоп
+                    self.odom_x,
+                    self.odom_y,
+                    self.odom_th,  # одометрия
+                    self.current_v,
+                    0.0,
+                    self.current_w,  # скорости
+                    wx,
+                    wy,
+                    wz,  # гироскоп
                 )
                 payload += struct.pack("<I", n)
                 if n:
@@ -403,7 +459,9 @@ class UdpDiffController:
                         front = ranges[len(ranges) // 2]
                         right = ranges[len(ranges) // 4]
                         left = ranges[3 * len(ranges) // 4]
-                        lidar_info = f"n={n},front={front:.2f},left={left:.2f},right={right:.2f}"
+                        lidar_info = (
+                            f"n={n},front={front:.2f},left={left:.2f},right={right:.2f}"
+                        )
                     else:
                         lidar_info = "n=0"
 
@@ -428,6 +486,7 @@ class UdpDiffController:
             except:
                 pass
             print("[udp_diff] sockets closed, controller terminated")
+
 
 if __name__ == "__main__":
     controller = UdpDiffController()
