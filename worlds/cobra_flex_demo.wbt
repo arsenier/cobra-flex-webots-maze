@@ -1,10 +1,8 @@
 #VRML_SIM R2025a utf8
 
-EXTERNPROTO "../objects/backgrounds/protos/TexturedBackground.proto"
-EXTERNPROTO "../objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "../objects/floors/protos/RectangleArena.proto"
-
-EXTERNPROTO "../protos/TrafficCone.proto"
+EXTERNPROTO "/home/arsenier/Documents/ros/mts/webots/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "/home/arsenier/Documents/ros/mts/webots/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "/home/arsenier/Documents/ros/mts/webots/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/CobraFlex.proto"
 EXTERNPROTO "../protos/GeneratedMaze.proto"
 EXTERNPROTO "../protos/GeneratedCones.proto"
@@ -14,26 +12,24 @@ WorldInfo {
   basicTimeStep 16
 }
 Viewpoint {
-  orientation 0.2704778919174105 0.30892271133036786 -0.9118160277206185 1.787322460899992
-  position 2.091586362768177 5.704464683699639 3.4628250261046634
+  orientation 0.5264134182964927 0.5781262383074336 -0.6234251884692328 2.0827063627488784
+  position 2.6177625267548867 3.4188503859251593 5.555439974652592
 }
-TexturedBackground { }
-TexturedBackgroundLight { }
-
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
 RectangleArena {
   floorSize 8 8
   wallHeight 0.4
 }
-
-# Maze
-GeneratedMaze { }
-GeneratedCones { }
-
-# Robot
+GeneratedMaze {
+}
+GeneratedCones {
+}
 CobraFlex {
   translation 3.75 3.75 0
   rotation 0.9999999898646162 -0.0001006746426526702 0.00010067464265476338 1.5707963367140867
-  controller "udp_diff"
   leftFrontAnchor 0.07730000000000001 0.03501373400000003 0.08200000000000009
   leftRearAnchor -0.07730000000000002 0.03501373399999996 0.08200000000000003
   rightFrontAnchor 0.07730000000000002 0.03501373400000014 -0.08200000000000003
